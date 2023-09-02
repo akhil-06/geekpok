@@ -1,61 +1,63 @@
-const pokeTypeURL = 'https://pokeapi.co/api/v2/type/'
-const pokeQueryParams = new URLSearchParams(window.location.search)
+const pokeTypeURL = 'https://pokeapi.co/api/v2/type/';
+const pokeQueryParams = new URLSearchParams(window.location.search);
+// console.log(pokeQueryParams);
 const typeParams = new URLSearchParams(window.location.search);
-const typeSearch = typeParams.get('type')
+const typeSearch = typeParams.get('type');
+// console.log(typesearch);
 
 const pokedex = document.getElementById('pokedex');
-const pokemonSearchForm = document.querySelector('#pokemon-search-form');
-const pokemonTypeFilter = document.querySelector('.type-filter')
+const pokemonSearchForm  = document.querySelector('#pokemon-search-form');
+const pokemonTypeFilter = document.querySelector('.type-filter');
 
 let pokemonArray = [];
 let uniqueTypes = new Set();
 
 const fetchPokemon = () => {
     const promises = [];
-    for (let i = 1; i <= 151; i++) {
+    for(let i=1; i<= 151; i++){
         const pokemonURL = `https://pokeapi.co/api/v2/pokemon/${i}`;
-        promises.push(fetch(pokemonURL) 
-            .then(response => response.json())
-        )
+        console.log(pokemonURL);
+        promises.push(fetch(pokemonURL).then(response => response.json()))
     }
+
     Promise.all(promises)
-    .then(allPokemon => {
-        const firstGenPokemon = allPokemon.map(pokemon => ({
+    .then(allPokemon =>{
+        const firstGenPokemon = allPokemon.map(pokemon=>({
             frontImage: pokemon.sprites['front_default'],
-            pokemon_id: pokemon.id,
-            name: pokemon.name,
-            type: pokemon.types[0].type.name,
-            abilities: pokemon.abilities.map(ability => ability.ability.name).join(', '),
-            backImage: pokemon.sprites['back_default'],
-            description: pokemon.species.url
+            pokemon_id:pokemon.id,
+            name:pokemon.name,
+            type:pokemon.types[0].type.name,
+            abilities:pokemon.abilities.map(ability=>ability.ability.name).join(', '),
+            description:pokemon.species.url
         }))
-        pokemonArray = firstGenPokemon
-        createPokemonCards(firstGenPokemon)
+        pokemonArray = firstGenPokemon;
+        // console.log(promises);
+        console.log(firstGenPokemon);
+        createPokemonCards(firstGenPokemon);
     })
-    .then(generateTypes)
+    .then(generateTypes);
 }
 
 fetchPokemon()
 
-pokemonSearchForm.addEventListener('input', (event) => {
-    const filteredPokemon = pokemonArray.filter(pokemon => pokemon.name.includes(event.target.value.toLowerCase()))
+pokemonSearchForm.addEventListener('input',(event)=>{
+    const filterPokemon = pokemonArray.filter(pokemon => pokemon.name.includes(event.target.value.toLowerCase()))
     clearPokedex()
-    createPokemonCards(filteredPokemon)
+    createPokemonCards(filterPokemon)
 })
 
-function clearPokedex() {
-    let section = document.querySelector('#pokedex')
-
+function clearPokedex(){
+    let section = document.querySelector('#pokedex');
     section.innerHTML = ''
 }
 
-function createPokemonCards(pokemons) {
-    let currentPokemon = pokemons
-    if (typeSearch) {
+function createPokemonCards(pokemons){
+    let currentPokemon = pokemons;
+    if(typeSearch){
         currentPokemon = pokemons.filter(pokemon => pokemon.type.includes(typeSearch.toLowerCase()))
     }
-    currentPokemon.forEach(pokemon => {
-        createPokemonCard(pokemon)   
+    currentPokemon.forEach(pokemon=>{
+        createPokemonCard(pokemon)
     })
 }
 
@@ -117,14 +119,12 @@ function createPokemonCard(pokemon) {
     backPokeAbilities.classList.add("back-pokemon-abilities")
 
     backCard.append(backImage, backPokeID, backPokeName, backPokeAbilities)
-
-    // append
-    flipCardInner.append(frontCard, backCard)
-
-    uniqueTypes.add(pokemon.type)
+    flipCardInner.append(frontCard, backCard);
+    uniqueTypes.add(pokemon.type);
 }
-function generateTypes() {
-    uniqueTypes.forEach(type => {
+
+function generateTypes(){
+    uniqueTypes.forEach(type=>{
         const typeOption = document.createElement('option');
         typeOption.textContent = type.charAt(0).toUpperCase() + type.slice(1);
         typeOption.value = type;
